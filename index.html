@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Santa Muerte Wiki // Hidden Knowledge</title>
     <style>
-        /* ——— Custom Vibe Variables ——— */
         :root {
             --dark: #070707;
             --panel: #121212;
@@ -24,146 +23,46 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
-            /* Легкий эффект шума, чтобы фон не был слишком плоским */
             background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
         }
 
-        .search-box {
-            position: fixed;
-            top: 20px;
-            right: 30px;
-            z-index: 999;
-        }
-
+        .search-box { position: fixed; top: 20px; right: 30px; z-index: 999; }
         #find-input {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 30px;
-            padding: 10px 18px;
-            color: #fff;
-            width: 180px;
-            font-size: 13px;
-            outline: none;
+            background: #1a1a1a; border: 1px solid #333; border-radius: 30px;
+            padding: 10px 18px; color: #fff; width: 180px; font-size: 13px; outline: none;
             transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        #find-input:focus {
-            width: 240px;
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
-        }
-
+        #find-input:focus { width: 240px; border-color: var(--gold); }
         #res-list {
-            position: absolute;
-            top: 45px;
-            right: 0;
-            background: #1a1a1a;
-            border: 1px solid #222;
-            width: 260px;
-            border-radius: 12px;
-            padding: 5px;
-            display: none;
-            list-style: none;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            position: absolute; top: 45px; right: 0; background: #1a1a1a;
+            border: 1px solid #222; width: 260px; border-radius: 12px;
+            padding: 5px; display: none; list-style: none; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
         }
-
-        .res-link {
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 8px;
-            margin-bottom: 2px;
-            font-size: 13px;
-        }
-
+        .res-link { padding: 10px; cursor: pointer; border-radius: 8px; font-size: 13px; }
         .res-link:hover { background: #252525; color: var(--gold); }
 
-        /* ——— Sidebar Magic ——— */
-        .altar-sidebar {
-            width: 300px;
-            background: var(--panel);
-            border-right: 1px solid #1f1f1f;
-            padding: 30px 15px;
-            overflow-y: auto;
-        }
-
+        .altar-sidebar { width: 300px; background: var(--panel); border-right: 1px solid #1f1f1f; padding: 30px 15px; overflow-y: auto; }
         .group-label {
-            font-family: var(--f-serif);
-            color: var(--gold);
-            padding: 10px 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 12px;
-            margin-bottom: 5px;
-            font-size: 17px;
-            letter-spacing: 0.5px;
-            transition: background 0.2s;
+            font-family: var(--f-serif); color: var(--gold); padding: 12px 20px;
+            cursor: pointer; display: flex; justify-content: space-between;
+            border-radius: 12px; margin-bottom: 5px; font-size: 17px; transition: 0.2s;
         }
-
         .group-label:hover { background: rgba(212, 175, 55, 0.05); }
-
-        .sub-links {
-            max-height: 0;
-            overflow: hidden;
-            transition: 0.4s ease-in-out;
-            margin-bottom: 10px;
-        }
-
-        .open .sub-links { max-height: 400px; }
-
-        .link-node {
-            padding: 8px 35px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 20px;
-            margin: 2px 0;
-            color: #888;
-            transition: 0.2s;
-        }
-
+        .sub-links { max-height: 0; overflow: hidden; transition: 0.4s ease-in-out; }
+        .open .sub-links { max-height: 600px; margin-bottom: 10px; }
+        .link-node { padding: 8px 35px; font-size: 14px; cursor: pointer; border-radius: 20px; color: #888; transition: 0.2s; }
         .link-node:hover { color: #fff; padding-left: 40px; }
         .link-node.active { color: var(--dark); background: var(--gold); font-weight: 600; }
 
-        /* ——— Reading Room ——— */
-        .reading-room {
-            flex: 1;
-            padding: 80px 40px;
-            overflow-y: auto;
-            background: radial-gradient(circle at top right, #0f0f0f, #070707);
-        }
-
+        .reading-room { flex: 1; padding: 80px 40px; overflow-y: auto; background: radial-gradient(circle at top right, #0f0f0f, #070707); }
         .article-wrap { max-width: 680px; margin: 0 auto; }
+        h2#at-title { font-family: var(--f-serif); color: var(--accent); font-size: 3rem; margin: 0; }
+        p#at-sub { color: var(--blood); text-transform: uppercase; font-size: 12px; font-weight: 700; letter-spacing: 2px; margin-bottom: 40px; }
+        #at-body { line-height: 1.7; font-size: 17px; color: rgba(255,255,255,0.85); }
+        mark { background: var(--gold); color: #000; border-radius: 2px; padding: 0 2px; }
 
-        h2#at-title {
-            font-family: var(--f-serif);
-            color: var(--accent);
-            font-size: 3rem;
-            margin: 0 0 5px 0;
-            line-height: 1;
-        }
-
-        p#at-sub {
-            color: var(--blood);
-            text-transform: uppercase;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 40px;
-        }
-
-        #at-body {
-            line-height: 1.7;
-            font-size: 17px;
-            color: rgba(255,255,255,0.85);
-        }
-
-        mark { background: var(--gold); color: #000; border-radius: 2px; padding: 0 2px; transition: 2s; }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #222; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
     </style>
 </head>
 <body>
@@ -177,7 +76,7 @@
 
     <main class="reading-room">
         <div class="article-wrap">
-            <h2 id="at-title"></h2>
+            <h2 id="at-title">Loading...</h2>
             <p id="at-sub"></p>
             <div id="at-body"></div>
         </div>
@@ -186,13 +85,25 @@
     <script>
         let _data = [];
 
+        // —— НАСТРОЙКИ ХРАНИЛИЩА ——
+        const BIN_ID = 'ТВОЙ_BIN_ID'; // Замени на свой ID
+        const API_KEY = 'ТВОЙ_X_MASTER_KEY'; // Замени на свой ключ
+
         async function init() {
             try {
-                const r = await fetch('data.json');
-                _data = await r.json();
+                // Тянем данные из живого JSON
+                const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                const res = await r.json();
+                _data = res.record; // JSONbin кладет данные в поле record
+                
                 buildMenu();
-                show('about');
-            } catch (e) { console.error('Archive corrupted', e); }
+                show('about'); // ID стартовой статьи
+            } catch (e) { 
+                console.error('Connection lost', e); 
+                document.getElementById('at-title').innerText = "Ошибка связи";
+            }
         }
 
         function buildMenu() {
@@ -206,12 +117,12 @@
                 
                 const ul = document.createElement('div');
                 ul.className = 'sub-links';
-                for (let key in g.items) {
+                for (let k in g.items) {
                     const li = document.createElement('div');
                     li.className = 'link-node';
-                    li.id = `node-${key}`;
-                    li.innerText = g.items[key].title;
-                    li.onclick = (ev) => { ev.stopPropagation(); show(key); };
+                    li.id = `node-${k}`;
+                    li.innerText = g.items[k].title;
+                    li.onclick = (e) => { e.stopPropagation(); show(k); };
                     ul.appendChild(li);
                 }
                 wrap.appendChild(ul);
@@ -229,7 +140,6 @@
             let item = null;
             let pid = '';
             _data.forEach(g => { if(g.items[key]) { item = g.items[key]; pid = g.id; } });
-            
             if(!item) return;
 
             tg(pid, true);
@@ -243,11 +153,6 @@
             let txt = item.text;
             if(q) txt = txt.replace(new RegExp(`(${q})`, 'gi'), '<mark>$1</mark>');
             document.getElementById('at-body').innerHTML = txt;
-
-            if(q) setTimeout(() => { 
-                const m = document.querySelector('mark');
-                if(m) { m.scrollIntoView({behavior:'smooth', block:'center'}); setTimeout(() => m.style.background='transparent', 2000); }
-            }, 200);
         }
 
         function doSearch() {
