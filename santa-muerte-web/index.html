@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Muerte Wiki // Altar Edition</title>
+    <style>
+        :root {
+            --dark: #070707; --panel: #121212; --gold: #d4af37;
+            --blood: #630000; --text: #c0c0c0; --accent: #e5c100;
+            --f-serif: 'Garamond', 'Georgia', serif;
+        }
+
+        body {
+            background: var(--dark); color: var(--text); font-family: sans-serif;
+            margin: 0; display: flex; height: 100vh; overflow: hidden;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png');
+        }
+
+        /* Меню слева */
+        .sidebar { width: 300px; background: var(--panel); border-right: 1px solid #1f1f1f; padding: 20px; overflow-y: auto; }
+        .group-label { font-family: var(--f-serif); color: var(--gold); padding: 10px; cursor: pointer; font-size: 18px; }
+        .sub-links { max-height: 0; overflow: hidden; transition: 0.3s; margin-left: 10px; }
+        .open .sub-links { max-height: 500px; }
+        .link-node { padding: 8px 15px; cursor: pointer; color: #888; border-radius: 15px; font-size: 14px; }
+        .link-node:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .link-node.active { color: var(--dark); background: var(--gold); font-weight: bold; }
+
+        /* Контент */
+        .reading-room { flex: 1; padding: 60px; overflow-y: auto; position: relative; }
+        .article-wrap { max-width: 700px; margin: 0 auto; }
+        h2 { font-family: var(--f-serif); color: var(--accent); font-size: 3rem; margin-top: 0; }
+        #at-body { line-height: 1.7; font-size: 18px; white-space: pre-wrap; }
+
+        /* Кнопки админки */
+        .admin-controls { margin-top: 20px; display: flex; gap: 10px; }
+        .btn { 
+            background: none; border: 1px solid var(--gold); color: var(--gold); 
+            padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px;
+        }
+        .btn:hover { background: var(--gold); color: black; }
+        
+        #editor { 
+            width: 100%; min-height: 300px; background: #1a1a1a; color: #fff; 
+            border: 1px solid #333; padding: 15px; display: none; border-radius: 10px;
+            font-family: inherit; font-size: 18px; line-height: 1.7; outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar" id="nav-list"></aside>
+
+    <main class="reading-room">
+        <div class="article-wrap">
+            <h2 id="at-title">Загрузка...</h2>
+            <p id="at-sub" style="color: var(--blood); font-weight: bold;"></p>
+            
+            <div id="at-body"></div>
+            <textarea id="editor"></textarea>
+
+            <div class="admin-controls">
+                <button class="btn" id="edit-mode-btn" onclick="toggleEdit()">Edit Article</button>
+                <button class="btn" id="save-btn" style="display:none; background: var(--gold); color: black;" onclick="saveToServer()">Save Changes</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let _data = [];
+        let currentKey = '';
+
+        async function init() {
+            try {
+                // Если ты на хостинге Vercel, путь будет таким
+                const r = await fetch('/api/data'); 
+                _data = await r.json();
+                buildMenu();
+                show('about');
+            } catch (e) {
+                console.error("Server not found, using local fallback", e);
+                document.getElementById('at-title').innerText = "Ошибка сервера";
+            }
+        }
+
+        function buildMenu() {
+            const n = document.getElementById('nav-list');
+            n.innerHTML = '';
+            _data.forEach(g => {
+                const wrap = document.createElement('div');
+                wrap.id = g.id;
+                wrap.innerHTML = `<div class="group-label" onclick="document.getElementById('${g.id}').classList.toggle('open')">${g.category}</div>`;
+                const sub = document.createElement('div');
+                sub.className = 'sub-links';
+                for (let k in g.items) {
+                    const li = document.createElement('div');
+                    li.className = 'link-node';
+                    li.id = `node-${k}`;
+                    li.innerText = g.items[k].title;
+                    li.onclick = () => show(k);
+                    sub.appendChild(li);
+                }
+                wrap.appendChild(sub);
+                n.appendChild(wrap);
+            });
+        }
+
+        function show(key) {
+            currentKey = key;
+            let item = null;
+            _data.forEach(g => { if(g.items[key]) item = g.items[key]; });
+            if(!item) return;
+
+            document.querySelectorAll('.link-node').forEach(l => l.classList.remove('active'));
+            document.getElementById(`node-${key}`).classList.add('active');
+
+            document.getElementById('at-title').innerText = item.title;
+            document.getElementById('at-sub').innerText = item.sub;
+            document.getElementById('at-body').innerText = item.text;
+            
+            // Сбрасываем режим редактора при переходе
+            document.getElementById('at-body').style.display = 'block';
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('save-btn').style.display = 'none';
+            document.getElementById('edit-mode-btn').innerText = 'Edit Article';
+        }
+
+        function toggleEdit() {
+            const body = document.getElementById('at-body');
+            const editor = document.getElementById('editor');
+            const saveBtn = document.getElementById('save-btn');
+
+            if (editor.style.display === 'none') {
+                editor.value = body.innerText;
+                body.style.display = 'none';
+                editor.style.display = 'block';
+                saveBtn.style.display = 'block';
+                document.getElementById('edit-mode-btn').innerText = 'Cancel';
+            } else {
+                body.style.display = 'block';
+                editor.style.display = 'none';
+                saveBtn.style.display = 'none';
+                document.getElementById('edit-mode-btn').innerText = 'Edit Article';
+            }
+        }
+
+        async function saveToServer() {
+            const newText = document.getElementById('editor').value;
+            const pass = prompt("Введите пароль администратора:");
+
+            // Обновляем данные в памяти
+            _data.forEach(g => {
+                if (g.items[currentKey]) g.items[currentKey].text = newText;
+            });
+
+            try {
+                const r = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass, newData: _data })
+                });
+                
+                if (r.ok) {
+                    alert("Сохранено в вечности!");
+                    location.reload();
+                } else {
+                    alert("Ошибка доступа. Неверный пароль.");
+                }
+            } catch (e) {
+                alert("Ошибка сервера: " + e.message);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Muerte Wiki // Altar</title>
+    <style>
+        :root { --dark: #070707; --panel: #121212; --gold: #d4af37; --blood: #630000; --text: #c0c0c0; --accent: #e5c100; --f-serif: 'Garamond', serif; }
+        body { background: var(--dark); color: var(--text); font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background-image: url('https://www.transparenttextures.com/patterns/dark-matter.png'); }
+        .sidebar { width: 300px; background: var(--panel); border-right: 1px solid #1f1f1f; padding: 20px; overflow-y: auto; }
+        .group-label { font-family: var(--f-serif); color: var(--gold); padding: 10px; cursor: pointer; font-size: 18px; }
+        .sub-links { max-height: 0; overflow: hidden; transition: 0.3s; margin-left: 10px; }
+        .open .sub-links { max-height: 500px; }
+        .link-node { padding: 8px 15px; cursor: pointer; color: #888; border-radius: 15px; font-size: 14px; transition: 0.2s; }
+        .link-node:hover { color: #fff; background: rgba(255,255,255,0.05); }
+        .link-node.active { color: var(--dark); background: var(--gold); font-weight: bold; }
+        .reading-room { flex: 1; padding: 60px; overflow-y: auto; position: relative; }
+        .article-wrap { max-width: 700px; margin: 0 auto; }
+        h2 { font-family: var(--f-serif); color: var(--accent); font-size: 3rem; margin-top: 0; }
+        #at-body { line-height: 1.7; font-size: 18px; white-space: pre-wrap; }
+        .btn { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; margin-top: 20px; }
+        .btn:hover { background: var(--gold); color: black; }
+        #editor { width: 100%; min-height: 300px; background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 15px; display: none; border-radius: 10px; font-size: 18px; line-height: 1.7; outline: none; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="nav-list"></aside>
+    <main class="reading-room">
+        <div class="article-wrap">
+            <h2 id="at-title">Connection...</h2>
+            <p id="at-sub" style="color: var(--blood); font-weight: bold;"></p>
+            <div id="at-body"></div>
+            <textarea id="editor"></textarea>
+            <div id="controls">
+                <button class="btn" id="edit-btn" onclick="toggleEdit()">Edit Article</button>
+                <button class="btn" id="save-btn" style="display:none; background:var(--gold); color:black;" onclick="saveChanges()">Save</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        let _data = [], currentK = '';
+        async function init() {
+            try {
+                const r = await fetch('/api/data');
+                _data = await r.json();
+                renderMenu();
+                show(Object.keys(_data[0].items)[0]);
+            } catch (e) { document.getElementById('at-title').innerText = "Offline"; }
+        }
+        function renderMenu() {
+            const n = document.getElementById('nav-list'); n.innerHTML = '';
+            _data.forEach(g => {
+                const w = document.createElement('div'); w.id = g.id;
+                w.innerHTML = `<div class="group-label" onclick="this.parentElement.classList.toggle('open')">${g.category}</div>`;
+                const s = document.createElement('div'); s.className = 'sub-links';
+                for (let k in g.items) {
+                    const li = document.createElement('div'); li.className = 'link-node'; li.id = `n-${k}`; li.innerText = g.items[k].title;
+                    li.onclick = () => show(k); s.appendChild(li);
+                }
+                w.appendChild(s); n.appendChild(w);
+            });
+        }
+        function show(k) {
+            currentK = k; let itm = null; _data.forEach(g => { if(g.items[k]) itm = g.items[k]; });
+            document.querySelectorAll('.link-node').forEach(l => l.classList.remove('active'));
+            document.getElementById(`n-${k}`).classList.add('active');
+            document.getElementById('at-title').innerText = itm.title;
+            document.getElementById('at-sub').innerText = itm.sub;
+            document.getElementById('at-body').innerText = itm.text;
+            cancelEdit();
+        }
+        function toggleEdit() {
+            const b = document.getElementById('at-body'), e = document.getElementById('editor'), s = document.getElementById('save-btn');
+            if (e.style.display === 'none') { e.value = b.innerText; b.style.display = 'none'; e.style.display = 'block'; s.style.display = 'block'; document.getElementById('edit-btn').innerText = 'Cancel'; }
+            else cancelEdit();
+        }
+        function cancelEdit() {
+            document.getElementById('at-body').style.display = 'block'; document.getElementById('editor').style.display = 'none';
+            document.getElementById('save-btn').style.display = 'none'; document.getElementById('edit-btn').innerText = 'Edit Article';
+        }
+        async function saveChanges() {
+            const pass = prompt("Password:");
+            _data.forEach(g => { if(g.items[currentK]) g.items[currentK].text = document.getElementById('editor').value; });
+            const r = await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pass, newData: _data }) });
+            if (r.ok) { alert("Updated!"); location.reload(); } else alert("Denied!");
+        }
+        init();
+    </script>
+</body>
+</html>
