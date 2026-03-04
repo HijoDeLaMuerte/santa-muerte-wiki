@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Santa Muerte: Энциклопедия</title>
+    <title>Santa Muerte Wiki</title>
     <style>
         :root {
             --bg-color: #0a0a0a;
@@ -26,59 +26,52 @@
             overflow: hidden;
         }
 
-        /* --- Поиск --- */
+        /* Поиск */
         .search-container { position: absolute; top: 25px; right: 40px; z-index: 100; }
         #search-input {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(207, 168, 110, 0.3);
-            border-radius: 50px; /* Скругление */
+            border-radius: 50px;
             padding: 10px 20px;
             color: white;
             outline: none;
             width: 220px;
             transition: var(--transition);
         }
-        #search-input:focus { border-color: var(--accent-gold); background: rgba(255, 255, 255, 0.1); }
-        
         #search-results {
             position: absolute; top: 50px; right: 0; background: var(--card-bg);
             border: 1px solid var(--accent-gold); border-radius: 20px;
             width: 280px; display: none; list-style: none; padding: 10px;
             max-height: 400px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
-        .result-item { padding: 10px; cursor: pointer; border-radius: 15px; margin-bottom: 5px; }
+        .result-item { padding: 10px; cursor: pointer; border-radius: 15px; margin-bottom: 5px; font-size: 0.9rem; }
         .result-item:hover { background: rgba(207, 168, 110, 0.1); }
 
-        /* --- Меню (круглый стиль) --- */
+        /* Меню */
         .sidebar { width: 320px; background: var(--card-bg); border-right: 1px solid rgba(207, 168, 110, 0.1); padding: 20px; overflow-y: auto; }
-        
         .category { margin-bottom: 10px; }
-        
         .category-header {
             padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            border-radius: 50px; /* Круглый стиль */
+            border-radius: 50px;
             background: rgba(255,255,255, 0.03);
             border: 1px solid rgba(207, 168, 110, 0.1);
             color: var(--accent-gold);
             font-weight: bold;
             transition: var(--transition);
         }
-        .category-header:hover { background: rgba(207, 168, 110, 0.1); }
-
-        .submenu {
-            max-height: 0; overflow: hidden; transition: max-height 0.4s ease;
-            list-style: none; padding: 0 10px; margin: 5px 0;
-        }
-        .category.open .submenu { max-height: 500px; }
+        .category.open .category-header { background: rgba(207, 168, 110, 0.1); }
+        
+        .submenu { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; list-style: none; padding: 0 10px; margin: 5px 0; }
+        .category.open .submenu { max-height: 800px; }
 
         .menu-item {
             padding: 12px 20px;
             margin: 5px 0;
-            border-radius: 50px; /* Круглый стиль */
+            border-radius: 50px;
             cursor: pointer;
             opacity: 0.7;
             transition: var(--transition);
@@ -86,10 +79,12 @@
         .menu-item:hover { opacity: 1; background: rgba(207, 168, 110, 0.15); }
         .menu-item.active { opacity: 1; background: var(--accent-gold); color: black; font-weight: bold; }
 
-        /* --- Контент --- */
+        /* Контент */
         .content-area { flex: 1; padding: 60px; overflow-y: auto; scroll-behavior: smooth; }
-        .article-view { max-width: 750px; margin: 0 auto; }
+        .article-view { max-width: 750px; margin: 0 auto; animation: fadeIn 0.5s ease; }
         mark.highlight { background: var(--accent-gold); color: black; border-radius: 4px; padding: 0 5px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         header { padding: 30px; text-align: center; border-bottom: 1px solid rgba(207,168,110,0.1); }
         h1 { font-family: var(--font-serif); color: var(--accent-gold); margin: 0; }
@@ -98,69 +93,63 @@
 <body>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Поиск по архивам..." oninput="handleSearch()">
+        <input type="text" id="search-input" placeholder="Поиск в архивах..." oninput="handleSearch()">
         <ul id="search-results"></ul>
     </div>
 
     <header><h1>Ensayo de Santa Muerte</h1></header>
 
     <div class="main-container" style="display: flex; flex: 1; overflow: hidden;">
-        <nav class="sidebar" id="main-nav"></nav>
+        <nav class="sidebar" id="main-nav">Загрузка меню...</nav>
 
         <main class="content-area">
             <div class="article-view" id="article-container">
                 <h2 id="article-title" style="font-family: var(--font-serif); color: var(--accent-gold); font-size: 2.5rem; margin: 0;"></h2>
                 <p id="article-subtitle" style="font-style: italic; color: var(--accent-red); margin-bottom: 30px;"></p>
-                <div id="article-body" style="line-height: 1.8;"></div>
+                <div id="article-body" style="line-height: 1.8; font-size: 1.1rem;"></div>
             </div>
         </main>
     </div>
 
     <script>
-        const database = [
-            {
-                category: "Главное", id: "cat0",
-                items: {
-                    'about': { title: "Кто я?", sub: "Автор проекта", text: "Привет! Я создатель этой энциклопедии. Этот проект — мой способ структурировать знания и погрузиться в эстетику Санта Муэрте. Здесь я делюсь своими наработками и мыслями." },
-                    'mission': { title: "Миссия", sub: "Цель ресурса", text: "Создать максимально эстетичный и удобный справочник для всех, кому близка эта тема." }
-                }
-            },
-            {
-                category: "Основы", id: "cat1",
-                items: {
-                    'intro': { title: "Введение", sub: "История появления", text: "Санта Муэрте — это синкретический культ. Она почитается как защитница обездоленных." },
-                    'philosophy': { title: "Философия", sub: "Взгляд на смерть", text: "Равенство всех перед смертью — главная мысль культа." }
-                }
-            },
-            {
-                category: "Ипостаси", id: "cat2",
-                items: {
-                    'white': { title: "Белая", sub: "La Blanca", text: "Очищение и мир." },
-                    'red': { title: "Красная", sub: "La Roja", text: "Любовь и страсть." }
-                }
-            }
-        ];
+        let database = [];
 
-        // Генерируем меню
-        const nav = document.getElementById('main-nav');
-        database.forEach(cat => {
-            let catDiv = document.createElement('div');
-            catDiv.className = 'category';
-            catDiv.id = cat.id;
-            catDiv.innerHTML = `<div class="category-header" onclick="toggleCat('${cat.id}')">${cat.category}</div>`;
-            let ul = document.createElement('ul');
-            ul.className = 'submenu';
-            for (let [id, data] of Object.entries(cat.items)) {
-                let li = document.createElement('li');
-                li.className = 'menu-item';
-                li.id = `menu-${id}`;
-                li.innerText = data.title;
-                li.onclick = (e) => { e.stopPropagation(); loadArticle(id); };
-                ul.appendChild(li);
+        // Функция загрузки данных из внешнего JSON файла
+        async function loadDatabase() {
+            try {
+                const response = await fetch('data.json');
+                database = await response.json();
+                renderMenu();
+                loadArticle('about'); // Загружаем "Обо мне" по умолчанию
+            } catch (error) {
+                console.error("Ошибка загрузки данных:", error);
+                document.getElementById('main-nav').innerText = "Ошибка загрузки базы данных.";
             }
-            catDiv.appendChild(ul);
-            nav.appendChild(catDiv);
-        });
+        }
+
+        function renderMenu() {
+            const nav = document.getElementById('main-nav');
+            nav.innerHTML = ''; 
+            database.forEach(cat => {
+                let catDiv = document.createElement('div');
+                catDiv.className = 'category';
+                catDiv.id = cat.id;
+                catDiv.innerHTML = `<div class="category-header" onclick="toggleCat('${cat.id}')">${cat.category}</div>`;
+                
+                let ul = document.createElement('ul');
+                ul.className = 'submenu';
+                for (let [id, data] of Object.entries(cat.items)) {
+                    let li = document.createElement('li');
+                    li.className = 'menu-item';
+                    li.id = `menu-${id}`;
+                    li.innerText = data.title;
+                    li.onclick = (e) => { e.stopPropagation(); loadArticle(id); };
+                    ul.appendChild(li);
+                }
+                catDiv.appendChild(ul);
+                nav.appendChild(catDiv);
+            });
+        }
 
         function toggleCat(id, forceOpen = false) {
             const el = document.getElementById(id);
@@ -172,15 +161,23 @@
             let foundData = null;
             let parentCatId = null;
             database.forEach(cat => { if (cat.items[id]) { foundData = cat.items[id]; parentCatId = cat.id; } });
+            
             if (!foundData) return;
 
             toggleCat(parentCatId, true);
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
-            document.getElementById(`menu-${id}`).classList.add('active');
+            const activeItem = document.getElementById(`menu-${id}`);
+            if (activeItem) activeItem.classList.add('active');
 
             document.getElementById('article-title').innerText = foundData.title;
             document.getElementById('article-subtitle').innerText = foundData.sub;
-            document.getElementById('article-body').innerHTML = highlight ? foundData.text.replace(new RegExp(`(${highlight})`, 'gi'), '<mark class="highlight">$1</mark>') : foundData.text;
+            
+            let text = foundData.text;
+            if (highlight) {
+                const regex = new RegExp(`(${highlight})`, 'gi');
+                text = text.replace(regex, '<mark class="highlight">$1</mark>');
+            }
+            document.getElementById('article-body').innerHTML = text;
         }
 
         function handleSearch() {
@@ -188,13 +185,14 @@
             const resBox = document.getElementById('search-results');
             resBox.innerHTML = '';
             if (q.length < 2) { resBox.style.display = 'none'; return; }
+            
             database.forEach(cat => {
                 for (let [id, data] of Object.entries(cat.items)) {
                     if (data.text.toLowerCase().includes(q) || data.title.toLowerCase().includes(q)) {
                         let li = document.createElement('li');
                         li.className = 'result-item';
-                        li.innerHTML = `<b>${data.title}</b>`;
-                        li.onclick = () => { loadArticle(id, q); resBox.style.display = 'none'; };
+                        li.innerHTML = `<b>${data.title}</b><br><small>${cat.category}</small>`;
+                        li.onclick = () => { loadArticle(id, q); resBox.style.display = 'none'; document.getElementById('search-input').value = ''; };
                         resBox.appendChild(li);
                     }
                 }
@@ -202,7 +200,8 @@
             resBox.style.display = resBox.children.length ? 'block' : 'none';
         }
 
-        loadArticle('about'); // Стартуем с раздела "Кто я?"
+        // Запуск
+        loadDatabase();
     </script>
 </body>
 </html>
